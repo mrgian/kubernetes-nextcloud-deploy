@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nextcloud-deployment
+  labels:
+    app: nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nextcloud
+  template:
+    metadata:
+      labels:
+        app: nextcloud
+    spec:
+      containers:
+      - name: nextcloud
+        image: nextcloud:latest
+        volumeMounts:
+        - mountPath: /var/www/html/apps
+          name: apps-volume
+        - mountPath: /var/www/html/config
+          name: config-volume
+        - mountPath: /var/www/html/data
+          name: data-volume
+        ports:
+        - containerPort: 80
+        env:
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-database
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: mysql-password
+        - name: MYSQL_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-config
+              key: mysql-url
+      volumes:
+      - name: apps-volume
+        hostPath:
+          path: /home/gian/data/nextcloud/apps
+          type: Directory
+      - name: config-volume
+        hostPath:
+          path: /home/gian/data/nextcloud/config
+          type: Directory
+      - name: data-volume
+        hostPath:
+          path: /home/gian/data/nextcloud/data
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nextcloud-service
+spec:
+  type: NodePort
+  selector:
+    app: nextcloud
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30001
