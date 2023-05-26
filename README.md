@@ -54,7 +54,7 @@ minikube service nextcloud-service
 The Nextcloud instance will be available at the shown URL.
 
 ## Configure reverse proxy in Nginx
-If you are running Kubernetes in Minikube, you may want your Nextcloud instance to be accessible from outsite.
+If you are running Kubernetes in Minikube, you may want your Nextcloud instance to be accessible from outside.
 You can setup a reverse proxy with Nginx
 
 Edit nginx.conf:
